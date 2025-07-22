@@ -30,6 +30,10 @@ app.use((req, res, next) => {
   next(); // 다른 미들웨어로 전달
 });
 
+app.get("/api/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 // router를 미들웨어로
 app.use("/api/farms", farmRoutes); // 받아온 라우팅
 app.use("/api/users", userRoutes);
@@ -37,6 +41,7 @@ app.use("/api/users", userRoutes);
 // 지원되지 않는 라우트 처리
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route", 404);
+  next(error); // ← 반드시 호출!
 });
 
 // middle ware function

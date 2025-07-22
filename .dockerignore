@@ -1,0 +1,13 @@
+# Node.js dependencies
+node_modules
+
+# 환경 변수 파일 (비밀 정보)
+.env
+
+# IDE, OS 메타데이터
+.vscode
+.DS_Store
+
+# 로그
+npm-debug.log*
+yarn-debug.log*

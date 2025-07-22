@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # 'backend' 서비스 이름을 'node-app'으로 변경하여 역할 명확화 (기존 Dockerfile과 일치)
+  node-app: 
+    # 로컬에서는 이 build 설정을 사용하지만, 서버에서는 아래 image를 pull 받습니다.
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # CI/CD를 위해 Docker Hub 이미지 이름을 명시합니다.
+    image: jeehokim/allweneedfarm-backend:v1.0.0 # ◀️ [수정 제안 2] 본인의 DockerHub 이미지
+    restart: unless-stopped
+    env_file:
+      - .env
+    # ⛔️ [수정 제안 1] 보안을 위해 외부 포트 노출을 제거합니다. ⛔️
+    # ports:
+    #   - "${PORT}:${PORT}"
+    networks:
+      - app-net
+    # 🪵 [수정 제안 3] CloudWatch 로깅 설정 추가
+    logging:
+      driver: "awslogs"
+      options:
+        awslogs-group: "allweneedfarm-backend-logs"
+        awslogs-region: "ap-northeast-2" # 본인의 리전
+        awslogs-stream-prefix: "node-app"
+
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      - node-app # 서비스 이름 변경에 따라 수정
+    ports:
+      - "80:80"
+      # - "443:443" # 443 포트는 나중에 CloudFront와 연동 후 HTTPS 설정 시 사용 예정
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - app-net
+    # 🪵 [수정 제안 3] Nginx 로그도 CloudWatch로 보냅니다.
+    logging:
+      driver: "awslogs"
+      options:
+        awslogs-group: "allweneedfarm-backend-logs"
+        awslogs-region: "ap-northeast-2" # 본인의 리전
+        awslogs-stream-prefix: "nginx"
+      
+networks:
+  app-net:
+    driver: bridge
