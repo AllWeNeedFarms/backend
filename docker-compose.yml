@@ -21,7 +21,8 @@ services:
       options:
         awslogs-group: "allweneedfarm-backend-logs"
         awslogs-region: "ap-northeast-2" # 본인의 리전
-        awslogs-stream-prefix: "node-app"
+        # [수정] 'awslogs-stream-prefix'를 'awslogs-stream'으로 변경하고, 스트림 이름을 직접 지정합니다.
+        awslogs-stream: "node-app-stream"
 
   nginx:
     image: nginx:alpine
@@ -40,7 +41,8 @@ services:
       options:
         awslogs-group: "allweneedfarm-backend-logs"
         awslogs-region: "ap-northeast-2" # 본인의 리전
-        awslogs-stream-prefix: "nginx"
+         # [수정] Nginx도 마찬가지로 변경합니다.
+        awslogs-stream: "nginx-stream"
       
 networks:
   app-net:
