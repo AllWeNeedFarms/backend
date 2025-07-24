@@ -1,4 +1,5 @@
-# Node.js dependencies
+# node_modules는 Dockerfile 내에서 npm install로 설치하므로 제외합니다.
+# 로컬의 node_modules가 복사되는 것을 방지합니다
 node_modules
 
 # 환경 변수 파일 (비밀 정보)
@@ -8,6 +9,17 @@ node_modules
 .vscode
 .DS_Store
 
+# 테스트 코드 및 관련 설정 파일 제외
+__tests__
+jest.config.js
+
+# README 파일 등 문서 제외
+README.md
+
 # 로그
 npm-debug.log*
 yarn-debug.log*
+
+# Git 관련 파일들은 이미지에 포함할 필요가 없습니다.
+.git
+.gitignore
