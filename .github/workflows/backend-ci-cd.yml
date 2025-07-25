@@ -84,7 +84,7 @@ jobs:
 
       # 5. EC2에 배포 명령 전송 (SSM Run Command 사용)
       - name: Deploy to EC2 instance
-        uses: aws-actions/aws-ssm-send-command@v1
+        uses: aws-actions/amazon-ssm-send-command@v1
         with:
           instance-ids: ${{ secrets.AWS_EC2_INSTANCE_ID }}
           working-directory: /home/ec2-user/backend # EC2 내 프로젝트 경로
