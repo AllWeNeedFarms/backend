@@ -87,6 +87,9 @@ jobs:
         uses: Castlenine/aws-ssm-command@v1
         id: ssm
         with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
           instance-ids: ${{ secrets.AWS_EC2_INSTANCE_ID }}
           working-directory: /home/ec2-user/backend # EC2 내 프로젝트 경로
           command: |
