@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "test": "jest",
+    "test:unit": "jest --ci --coverage --testPathPattern=__tests__/unit",
+    "test:integration": "jest --ci --coverage --testPathPattern=__tests__/integration",
+    "test": "npm run test:unit && npm run test:integration",
     "lint": "eslint ."
   },
   "repository": {

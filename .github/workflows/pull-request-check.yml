@@ -39,5 +39,17 @@ jobs:
         run: npm run lint
 
       # 5. 단위/통합 테스트를 실행합니다.
-      - name: Run tests
-        run: npm test
+25    - name: Run unit tests
+26      run: npm run test:unit
+27
+28    - name: Get PR labels
+29      id: get_labels
+30      uses: actions-ecosystem/action-get-labels@v1
+
+32    - name: Run integration tests
+33      if: contains(steps.get_labels.outputs.labels, 'integration-tests')
+34      run: npm run test:integration
+
+
+
+
