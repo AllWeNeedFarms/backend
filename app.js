@@ -58,11 +58,9 @@ app.use((error, req, res, next) => {
 
 // promise 객체
 mongoose
-  .connect(
-    "mongodb+srv://jeeho:wlghhoho32@farmcluster.g8mwkke.mongodb.net/mern?retryWrites=true&w=majority&appName=farmCluster"
-  )
+  .connect(process.env.MONGO_URI)
   .then(() => {
-    app.listen(5000); // 성공시에 백엔드 연결
+    app.listen(process.env.PORT || 5000); // 성공시에 백엔드 연결
   })
   .catch((err) => {
     console.log(err);
