@@ -37,7 +37,17 @@
             "image": "732513307518.dkr.ecr.ap-northeast-2.amazonaws.com/allweneedfarm-backend:latest",
             "cpu": 0,
             "portMappings": [],
-            "essential": false,
+            "essential": true,
+            
+            "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-group": "/aws/ecs/allweneedfarm-cluster",
+                "awslogs-region": "ap-northeast-2",
+                "awslogs-stream-prefix": "node-app"
+                }
+            },
+
             "environment": [
                 {
                     "name": "PORT",
@@ -100,7 +110,9 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
+    
     "registeredAt": "2025-07-31T03:19:21.152Z",
     "registeredBy": "arn:aws:iam::732513307518:root",
     "tags": []
+
 }

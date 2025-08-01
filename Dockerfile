@@ -16,10 +16,6 @@ COPY . .
 # ARG PORT=5000
 # ENV PORT=${PORT}
 
-# 5. 헬스체크 설정
-HEALTHCHECK --interval=30s --timeout=5s \
-    CMD wget -qO- http://localhost:${PORT:-5000}/api/health || exit 1
-
 # 6. 포트 개방
 EXPOSE ${PORT:-5000}
 
