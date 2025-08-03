@@ -1,5 +1,5 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:732513307518:task-definition/allweneedfarm-task-def:1",
+    "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:732513307518:task-definition/allweneedfarm-task-def:7",
     "containerDefinitions": [
         {
             "name": "nginx",
@@ -16,10 +16,8 @@
             ],
             "essential": true,
             "environment": [],
-            "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
-            "ulimits": [],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
@@ -38,18 +36,6 @@
             "cpu": 0,
             "portMappings": [],
             "essential": true,
-            
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "/ecs/allweneedfarm-task-def",
-                    "awslogs-create-group": "true",
-                    "awslogs-region": "ap-northeast-2",
-                    "awslogs-stream-prefix": "ecs"
-                },
-                "secretOptions": []
-            },
-
             "environment": [
                 {
                     "name": "PORT",
@@ -60,16 +46,24 @@
                     "value": "mongodb+srv://jeeho:wlghhoho32@farmcluster.g8mwkke.mongodb.net/mern?retryWrites=true&w=majority&appName=farmCluster"
                 }
             ],
-            "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/allweneedfarm-task-def",
+                    "awslogs-region": "ap-northeast-2",
+                    "awslogs-stream-prefix": "node-app"
+                },
+                "secretOptions": []
+            },
             "systemControls": []
         }
     ],
     "family": "allweneedfarm-task-def",
     "executionRoleArn": "arn:aws:iam::732513307518:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 1,
+    "revision": 7,
     "volumes": [],
     "status": "ACTIVE",
     "requiresAttributes": [
@@ -112,9 +106,7 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    
-    "registeredAt": "2025-07-31T03:19:21.152Z",
+    "registeredAt": "2025-08-03T11:02:36.539Z",
     "registeredBy": "arn:aws:iam::732513307518:root",
     "tags": []
-
 }
