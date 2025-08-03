@@ -49,65 +49,65 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
 
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # [수정] Access Key 대신 OIDC 역할을 사용하여 더 안전하게 AWS에 인증합니다.
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubAction-ECR-ECS-DeployRole # GitHub Actions를 위한 IAM 역할 ARN
-        aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+      # [변경] Docker Hub가 아닌 AWS ECR에 로그인합니다.
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-    # [수정] ECR_REGISTRY를 step의 output으로 명확하게 정의합니다.
-    - name: Build and push backend image
-      id: build-image-backend
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
-        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
+      # [수정] ECR_REGISTRY를 step의 output으로 명확하게 정의합니다.
+      - name: Build and push backend image
+        id: build-image-backend
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-    - name: Build and push nginx image
-      id: build-image-nginx
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG ./nginx
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG
-        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG" >> $GITHUB_OUTPUT
+      - name: Build and push nginx image
+        id: build-image-nginx
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG ./nginx
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-    # [수정] 두 개의 컨테이너 이미지를 모두 업데이트하도록 render 단계를 분리합니다.
-    - name: Render backend container in task definition
-      id: render-backend
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: ${{ env.ECS_TASK_DEFINITION }}
-        container-name: ${{ env.CONTAINER_NAME_BACKEND }}
-        image: ${{ steps.build-image-backend.outputs.image }}
+      # [수정] 두 개의 컨테이너 이미지를 모두 업데이트하도록 render 단계를 분리합니다.
+      - name: Render backend container in task definition
+        id: render-backend
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME_BACKEND }}
+          image: ${{ steps.build-image-backend.outputs.image }}
 
-    - name: Render nginx container in task definition
-      id: render-nginx
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        # 이전 단계에서 백엔드 이미지가 업데이트된 task-definition을 입력으로 받습니다.
-        task-definition: ${{ steps.render-backend.outputs.task-definition }}
-        container-name: ${{ env.CONTAINER_NAME_NGINX }}
-        image: ${{ steps.build-image-nginx.outputs.image }}
+      - name: Render nginx container in task definition
+        id: render-nginx
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          # 이전 단계에서 백엔드 이미지가 업데이트된 task-definition을 입력으로 받습니다.
+          task-definition: ${{ steps.render-backend.outputs.task-definition }}
+          container-name: ${{ env.CONTAINER_NAME_NGINX }}
+          image: ${{ steps.build-image-nginx.outputs.image }}
 
-    - name: Deploy to Amazon ECS
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        # 최종적으로 두 이미지가 모두 업데이트된 task-definition을 배포합니다.
-        task-definition: ${{ steps.render-nginx.outputs.task-definition }}
-        service: ${{ env.ECS_SERVICE }}
-        cluster: ${{ env.ECS_CLUSTER }}
-        wait-for-service-stability: true
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          # 최종적으로 두 이미지가 모두 업데이트된 task-definition을 배포합니다.
+          task-definition: ${{ steps.render-nginx.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
