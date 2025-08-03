@@ -40,12 +40,14 @@
             "essential": true,
             
             "logConfiguration": {
-            "logDriver": "awslogs",
-            "options": {
-                "awslogs-group": "/aws/ecs/allweneedfarm-cluster",
-                "awslogs-region": "ap-northeast-2",
-                "awslogs-stream-prefix": "node-app"
-                }
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/allweneedfarm-task-def",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "ap-northeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
             },
 
             "environment": [

@@ -1,3 +1,9 @@
+console.log("--- NODE-APP CONTAINER SCRIPT STARTED ---");
+console.log(
+  `[${new Date()}] MONGO_URI is:`,
+  process.env.MONGO_URI ? "SET" : "NOT SET or UNDEFINED"
+);
+
 const express = require("express");
 const app = express();
 
@@ -55,6 +61,8 @@ app.use((error, req, res, next) => {
   res.json({ message: error.message || "An unknown error occured!" });
   /* 클라이언트에게 보내줄 오류 */
 });
+
+console.log(`[${new Date()}] Attempting to connect to MongoDB...`);
 
 // promise 객체
 mongoose
