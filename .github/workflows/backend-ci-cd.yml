@@ -67,23 +67,21 @@ jobs:
       # [수정] ECR_REGISTRY를 step의 output으로 명확하게 정의합니다.
       - name: Build and push backend image
         id: build-image-backend
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest" >> $GITHUB_OUTPUT
+        env:
+          ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
       - name: Build and push nginx image
         id: build-image-nginx
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG ./nginx
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$latest ./nginx
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$latest" >> $GITHUB_OUTPUT
+        env:
+          ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
       # [수정] 두 개의 컨테이너 이미지를 모두 업데이트하도록 render 단계를 분리합니다.
       - name: Render backend container in task definition
