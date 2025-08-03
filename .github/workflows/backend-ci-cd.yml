@@ -77,9 +77,9 @@ jobs:
       - name: Build and push nginx image
         id: build-image-nginx
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$latest ./nginx
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$latest" >> $GITHUB_OUTPUT
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest ./nginx
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest" >> $GITHUB_OUTPUT
         env:
           ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
