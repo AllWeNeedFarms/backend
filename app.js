@@ -68,6 +68,7 @@ console.log(`[${new Date()}] Attempting to connect to MongoDB...`);
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
+    console.log(`[${new Date()}] Attempting to listen APP..`);
     app.listen(process.env.PORT || 5000); // 성공시에 백엔드 연결
   })
   .catch((err) => {
