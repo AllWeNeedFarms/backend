@@ -62,15 +62,42 @@ app.use((error, req, res, next) => {
   /* 클라이언트에게 보내줄 오류 */
 });
 
-console.log(`[${new Date()}] Attempting to connect to MongoDB...`);
+// 1. 서버부터 즉시 실행하여 포트를 연다.
+const server = app.listen(process.env.PORT || 5000, () => {
+  console.log(
+    `[${new Date()}] Express server started and listening on port ${
+      process.env.PORT || 5000
+    }.`
+  );
+});
 
-// promise 객체
+// 2. 그 다음, 데이터베이스 연결을 비동기적으로 시도한다.
+console.log(`[${new Date()}] Attempting to connect to MongoDB...`);
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    // Mongoose 6.x 이상에서는 아래 옵션들이 기본값이지만, 명시적으로 추가하면 좋습니다.
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
+    // 연결 타임아웃을 적절히 설정 (예: 10초)
+    serverSelectionTimeoutMS: 10000,
+  })
   .then(() => {
-    console.log(`[${new Date()}] Attempting to listen APP..`);
-    app.listen(process.env.PORT || 5000); // 성공시에 백엔드 연결
+    console.log(`[${new Date()}] MongoDB connected successfully.`);
   })
   .catch((err) => {
-    console.log(err);
+    console.error(`[${new Date()}] MongoDB connection FAILED:`, err);
+    // 중요: DB 연결에 실패해도 서버는 죽이지 않는다.
+    // 대신, 프로덕션에서는 이 상태를 모니터링하여 조치해야 합니다.
   });
+
+// 그레이스풀 셧다운(Graceful Shutdown) 처리 (선택사항이지만 권장)
+process.on("SIGTERM", () => {
+  console.log("SIGTERM signal received: closing HTTP server");
+  server.close(() => {
+    console.log("HTTP server closed");
+    mongoose.connection.close(false, () => {
+      console.log("MongoDB connection closed");
+      process.exit(0);
+    });
+  });
+});
